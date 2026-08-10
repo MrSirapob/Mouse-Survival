@@ -30,7 +30,6 @@ class UI {
       eventBanner: document.getElementById('event-banner'),
       statsBody: document.getElementById('stats-body'),
       resultsPanel: document.getElementById('results-panel'),
-      mobileControls: document.getElementById('mobile-controls'),
     };
     this.onAction = null; // set by Game
     this._bindClicks();
@@ -58,13 +57,6 @@ class UI {
 
   setHudVisible(visible) {
     this.els.hud.classList.toggle('hidden', !visible);
-    this.setMobileControlsVisible(visible);
-  }
-
-  setMobileControlsVisible(visible) {
-    if (this.els.mobileControls) {
-      this.els.mobileControls.classList.toggle('hidden', !visible);
-    }
   }
 
   setHudMode(mode) {
