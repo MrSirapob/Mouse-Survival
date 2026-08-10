@@ -52,7 +52,7 @@ class Game {
   _resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const w = window.innerWidth;
-    const h = window.innerHeight;
+    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
     this.canvas.width = Math.floor(w * dpr);
     this.canvas.height = Math.floor(h * dpr);
     this.canvas.style.width = w + 'px';
@@ -119,12 +119,14 @@ class Game {
   pause() {
     if (this.state !== GameState.PLAYING) return;
     this.state = GameState.PAUSED;
+    this.ui.setMobileControlsVisible(false);
     this.ui.showScreen('pause');
   }
 
   resume() {
     if (this.state !== GameState.PAUSED) return;
     this.state = GameState.PLAYING;
+    this.ui.setMobileControlsVisible(true);
     this.ui.hideAllOverlayScreens();
     this.ui.showScreen(null);
   }
@@ -319,6 +321,7 @@ class Game {
 
   _endSolo() {
     this.state = GameState.RESULTS;
+    this.ui.setMobileControlsVisible(false);
     const s = this.score.forPlayer(1);
     const best = Persistence.recordSolo({
       score: s.score, survivalTime: this.survivalTime, maxCombo: s.maxCombo,
@@ -328,6 +331,7 @@ class Game {
 
   _endDuo() {
     this.state = GameState.RESULTS;
+    this.ui.setMobileControlsVisible(false);
     const p1 = this.players[0], p2 = this.players[1];
     const s1 = this.score.forPlayer(1), s2 = this.score.forPlayer(2);
     let winner = null;
