@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<title>SURVIVAL // เกมเอาตัวรอด</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div id="app">
+
+    <canvas id="game-canvas"></canvas>
+
+    <!-- ============ MAIN MENU ============ -->
+    <section id="screen-menu" class="screen active">
+      <div class="menu-panel">
+        <h1 class="logo">SURVIVAL<span class="logo-sub">HAZARD</span></h1>
+        <nav class="menu-list">
+          <button class="menu-btn" data-action="start-solo">ผู้เล่นคนเดียว</button>
+          <button class="menu-btn" data-action="start-duo">ผู้เล่น 2 คน</button>
+          <button class="menu-btn menu-btn--ghost" data-action="how-to-play">วิธีเล่น</button>
+          <button class="menu-btn menu-btn--ghost" data-action="stats">สถิติ</button>
+        </nav>
+        <p class="menu-hint">พื้นที่คือศัตรู — หลบให้รอด แล้วเก็บคะแนนให้ได้มากที่สุด</p>
+      </div>
+    </section>
+
+    <!-- ============ HOW TO PLAY ============ -->
+    <section id="screen-how" class="screen">
+      <div class="menu-panel">
+        <h2 class="panel-title">วิธีเล่น</h2>
+        <div class="how-grid">
+          <div class="how-card">
+            <div class="how-icon">🖱</div>
+            <div class="how-text">
+              <b>ผู้เล่นคนเดียว:</b> ขยับเมาส์ (หรือแตะจอ) เพื่อนำทาง Energy Core · กดเมาส์ค้าง หรือ Space เพื่อพุ่งหลบ (Dash)
+            </div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">⌨</div>
+            <div class="how-text">
+              <b>ผู้เล่น 2 คน — P1:</b> W A S D เคลื่อนที่ · Shift พุ่งหลบ (Dash)
+            </div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">🎮</div>
+            <div class="how-text">
+              <b>ผู้เล่น 2 คน — P2:</b> ลูกศร ↑ ↓ ← → เคลื่อนที่ · / (หรือ Ctrl ขวา) พุ่งหลบ
+            </div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">⚠</div>
+            <div class="how-text">อันตรายทุกชนิดจะมี <b>สัญญาณเตือน</b> ก่อนเกิดขึ้นเสมอ สังเกตให้ดีแล้วหลบให้ทัน</div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">💎</div>
+            <div class="how-text">เก็บไอเทมเสริมพลังเพื่อความได้เปรียบ แต่บางครั้งไอเทมอยู่ในที่เสี่ยงอันตราย</div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">❤</div>
+            <div class="how-text">มี 3 ชีวิต โดนโจมตีจะเสียชีวิตและเกิดใหม่แบบปลอดภัยพร้อมพลังอมตะชั่วคราว</div>
+          </div>
+          <div class="how-card">
+            <div class="how-icon">🏆</div>
+            <div class="how-text">โหมด 2 คน: ไม่มีการโจมตีกันโดยตรง ผู้ที่รอดคนสุดท้ายคือผู้ชนะ</div>
+          </div>
+        </div>
+        <button class="menu-btn" data-action="back-menu">กลับเมนู</button>
+      </div>
+    </section>
+
+    <!-- ============ STATS ============ -->
+    <section id="screen-stats" class="screen">
+      <div class="menu-panel">
+        <h2 class="panel-title">สถิติ</h2>
+        <div id="stats-body" class="stats-body"></div>
+        <button class="menu-btn" data-action="back-menu">กลับเมนู</button>
+      </div>
+    </section>
+
+    <!-- ============ HUD (during gameplay) ============ -->
+    <div id="hud" class="hud hidden">
+      <div id="hud-solo" class="hud-row hidden">
+        <div class="hud-lives" id="hud-lives"></div>
+        <div class="hud-mid">
+          <div class="hud-timer" id="hud-timer">00:00</div>
+          <div class="hud-combo" id="hud-combo"></div>
+        </div>
+        <div class="hud-score" id="hud-score">0</div>
+      </div>
+      <div id="hud-duo" class="hud-row hud-row--duo hidden">
+        <div class="hud-player hud-player--p1">
+          <div class="hud-tag">P1</div>
+          <div class="hud-lives" id="hud-lives-p1"></div>
+          <div class="hud-score-small" id="hud-score-p1">0</div>
+        </div>
+        <div class="hud-mid">
+          <div class="hud-timer" id="hud-timer-duo">00:00</div>
+        </div>
+        <div class="hud-player hud-player--p2">
+          <div class="hud-tag">P2</div>
+          <div class="hud-lives" id="hud-lives-p2"></div>
+          <div class="hud-score-small" id="hud-score-p2">0</div>
+        </div>
+      </div>
+      <div id="event-banner" class="event-banner hidden"></div>
+      <button id="pause-btn" class="icon-btn" data-action="pause">❚❚</button>
+    </div>
+
+    <!-- ============ PAUSE ============ -->
+    <section id="screen-pause" class="screen overlay">
+      <div class="menu-panel">
+        <h2 class="panel-title">หยุดเกม</h2>
+        <nav class="menu-list">
+          <button class="menu-btn" data-action="resume">เล่นต่อ</button>
+          <button class="menu-btn menu-btn--ghost" data-action="restart">เริ่มใหม่</button>
+          <button class="menu-btn menu-btn--ghost" data-action="quit-menu">กลับเมนู</button>
+        </nav>
+      </div>
+    </section>
+
+    <!-- ============ RESULTS ============ -->
+    <section id="screen-results" class="screen overlay">
+      <div class="menu-panel" id="results-panel">
+        <!-- filled dynamically -->
+      </div>
+    </section>
+
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/persistence.js"></script>
+  <script src="js/vfx.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/arena.js"></script>
+  <script src="js/collision.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/hazard.js"></script>
+  <script src="js/hazardManager.js"></script>
+  <script src="js/powerup.js"></script>
+  <script src="js/powerupManager.js"></script>
+  <script src="js/score.js"></script>
+  <script src="js/difficulty.js"></script>
+  <script src="js/events.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
