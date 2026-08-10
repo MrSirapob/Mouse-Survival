@@ -45,11 +45,16 @@ class Player {
     return this.dashTimer > 0;
   }
 
-  update(dt, moveVec, dashPressed) {
+  update(dt, moveVec, dashPressed, devMode) {
     if (!this.alive) return;
 
     if (this.invulnTimer > 0) this.invulnTimer -= dt;
-    if (this.dashCooldownTimer > 0) this.dashCooldownTimer -= dt;
+    if (devMode && devMode.infiniteDash) {
+      this.dashCooldownTimer = 0;
+    } else if (this.dashCooldownTimer > 0) {
+      this.dashCooldownTimer -= dt;
+    }
+
     if (this.magnetTimer > 0) {
       this.magnetTimer -= dt;
       if (this.magnetTimer <= 0) this.hasMagnet = false;
@@ -60,18 +65,19 @@ class Player {
     this._prevDashKey = dashPressed;
     if (dashJustPressed && this.dashCooldownTimer <= 0 && (moveVec.x !== 0 || moveVec.y !== 0) && this.dashTimer <= 0) {
       this.dashTimer = CONFIG.PLAYER.dashDuration;
-      this.dashCooldownTimer = CONFIG.PLAYER.dashCooldown;
+      this.dashCooldownTimer = devMode && devMode.infiniteDash ? 0 : CONFIG.PLAYER.dashCooldown;
       this.dashDir = { ...moveVec };
     }
 
-    let speed = CONFIG.PLAYER.speed * this.slowFactor;
+    let speedMultiplier = devMode ? devMode.speedMultiplier : 1.0;
+    let speed = CONFIG.PLAYER.speed * this.slowFactor * speedMultiplier;
     let vx = moveVec.x, vy = moveVec.y;
 
     if (this.dashTimer > 0) {
       this.dashTimer -= dt;
       vx = this.dashDir.x;
       vy = this.dashDir.y;
-      speed = CONFIG.PLAYER.dashSpeed;
+      speed = CONFIG.PLAYER.dashSpeed * speedMultiplier;
     }
 
     this.x += vx * speed * dt;
@@ -92,7 +98,8 @@ class Player {
   }
 
   // Returns true if the hit actually removed a life (false if absorbed/invuln)
-  takeHit(vfx) {
+  takeHit(vfx, devMode) {
+    if (devMode && devMode.godMode) return false;
     if (this.isInvulnerable || !this.alive) return false;
 
     if (this.hasShield) {

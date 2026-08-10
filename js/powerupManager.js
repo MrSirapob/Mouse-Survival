@@ -44,6 +44,11 @@ class PowerUpManager {
     this.items.push(new PowerUp(type, point.x, point.y));
   }
 
+  spawnSpecific(type) {
+    const point = this.arena.randomPointInside(50);
+    this.items.push(new PowerUp(type, point.x, point.y));
+  }
+
   // Returns collected power-up defs for score/risk logic, removes item.
   collect(player, game) {
     const collected = [];

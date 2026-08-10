@@ -124,4 +124,24 @@ class EventSystem {
   get isBannerVisible() {
     return !!(this.warningKey || this.activeKey);
   }
+
+  triggerSpecificEvent(name) {
+    if (name === 'shrinkArena' || name === 'shrink') {
+      this.arena.setShrink(0.62);
+      this.activeKey = 'shrink';
+      this.activeTimer = 8;
+    } else if (name === 'expandArena') {
+      this.arena.setShrink(1.0);
+      if (this.activeKey === 'shrink') this.activeKey = null;
+    } else if (EVENT_DEFS[name]) {
+      this.warningKey = name;
+      this.warningTimer = 0.1;
+    } else if (name === 'meteorShower' || name === 'chaosSpawn') {
+      this.warningKey = 'chaos';
+      this.warningTimer = 0.1;
+    } else if (name === 'speedZone') {
+      this.warningKey = 'rush';
+      this.warningTimer = 0.1;
+    }
+  }
 }

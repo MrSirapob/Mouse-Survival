@@ -47,6 +47,9 @@ class Game {
 
     this._lastTs = 0;
 
+    this.devMode = new DevMode(this);
+    window.game = this;
+
     this.ui.onAction = (action) => this._handleAction(action);
     this.ui.showScreen('menu');
 
@@ -84,6 +87,7 @@ class Game {
       case 'resume': this.resume(); break;
       case 'restart': this.startGame(this.mode); break;
       case 'quit-menu': this.returnToMenu(); break;
+      case 'toggle-dev': this.devMode.toggle(); break;
       default: break;
     }
   }
@@ -165,6 +169,8 @@ class Game {
   _update(dt) {
     this.survivalTime += dt;
 
+    if (this.devMode) this.devMode.updateFPS();
+
     if (this.globalSlowTimer > 0) this.globalSlowTimer -= dt;
     const hazardDt = this.globalSlowTimer > 0 ? dt * 0.4 : dt;
 
@@ -177,8 +183,10 @@ class Game {
     const chaosBoost = this.events.hazardSpawnMultiplier;
     this._hazardEventBoost = chaosBoost;
 
-    // temporarily fold chaos boost into spawn pacing by calling update multiple sub-steps if needed
-    this.hazardManager.update(hazardDt * chaosBoost, effectiveLevel, this.players);
+    // update hazards unless freeze feature is toggled on in DevMode
+    if (!this.devMode || !this.devMode.freezeHazards) {
+      this.hazardManager.update(hazardDt * chaosBoost, effectiveLevel, this.players);
+    }
     this.powerupManager.update(dt);
     this.powerupManager.applyMagnetPull(this.players, dt);
 
@@ -208,7 +216,7 @@ class Game {
         move = this.input.getP2Vector();
         dash = this.input.getP2Dash();
       }
-      player.update(dt, move, dash);
+      player.update(dt, move, dash, this.devMode);
     }
   }
 
@@ -223,7 +231,7 @@ class Game {
           const wasAlreadyHit = hazard.hitBy.has(player.id);
           hazard.hitBy.add(player.id);
           if (!wasAlreadyHit || !player.isInvulnerable) {
-            const lostLife = player.takeHit(this.vfx);
+            const lostLife = player.takeHit(this.vfx, this.devMode);
             if (lostLife) {
               this.score.forPlayer(player.id).breakCombo();
               if (player.alive) this._respawnPlayer(player);
@@ -372,5 +380,6 @@ class Game {
     ctx.restore();
 
     this.vfx.drawScreenFlash(ctx, w, h);
+    if (this.devMode) this.devMode.drawDebugOverlay(ctx);
   }
 }
