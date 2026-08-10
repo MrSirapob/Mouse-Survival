@@ -29,6 +29,10 @@ class Game {
 
     this._resize();
     window.addEventListener('resize', () => this._resize());
+    window.addEventListener('orientationchange', () => setTimeout(() => this._resize(), 200));
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => this._resize());
+    }
 
     this.arena = new Arena(this._cssWidth, this._cssHeight);
     this.hazardManager = new HazardManager(this.arena, this.vfx);
@@ -51,12 +55,17 @@ class Game {
 
   _resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const w = window.innerWidth;
-    const h = window.innerHeight;
+    // Use visualViewport when available — on mobile it gives the *actual*
+    // visible area, excluding browser chrome (URL bar, toolbars).
+    const vp = window.visualViewport;
+    const w = vp ? vp.width : window.innerWidth;
+    const h = vp ? vp.height : window.innerHeight;
     this.canvas.width = Math.floor(w * dpr);
     this.canvas.height = Math.floor(h * dpr);
     this.canvas.style.width = w + 'px';
     this.canvas.style.height = h + 'px';
+    this.canvas.style.top = (vp ? vp.offsetTop : 0) + 'px';
+    this.canvas.style.left = (vp ? vp.offsetLeft : 0) + 'px';
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this._cssWidth = w;
     this._cssHeight = h;

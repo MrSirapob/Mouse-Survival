@@ -44,7 +44,8 @@ html, body {
 #app {
   position: relative;
   width: 100vw;
-  height: 100vh;
+  height: 100vh;       /* fallback for older browsers */
+  height: 100dvh;      /* dynamic viewport — excludes mobile browser chrome */
 }
 
 #game-canvas {
