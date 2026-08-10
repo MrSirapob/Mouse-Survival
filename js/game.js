@@ -30,7 +30,7 @@ class Game {
     this._resize();
     window.addEventListener('resize', () => this._resize());
 
-    this.arena = new Arena(this.canvas.width, this.canvas.height);
+    this.arena = new Arena(this._cssWidth, this._cssHeight);
     this.hazardManager = new HazardManager(this.arena, this.vfx);
     this.powerupManager = new PowerUpManager(this.arena, this.hazardManager, this.vfx);
     this.difficulty = new DifficultySystem();
